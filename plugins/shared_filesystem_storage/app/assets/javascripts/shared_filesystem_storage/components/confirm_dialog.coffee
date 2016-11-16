@@ -57,7 +57,7 @@ shared_filesystem_storage.ConfirmDialog = React.createClass
     @setState disabled: e.target.value!=@props.validationTerm 
 
   render: ->
-    React.createElement shared_filesystem_storage.Modal, ref: 'modal', large: false, onHidden: @handleClose,
+    React.createElement ReactModal, ref: 'modal', large: false, onHidden: @handleClose,
       div className: 'modal-header',    
         h4 className: 'modal-title', 
           i className: "confirm-icon fa fa-fw fa-exclamation-triangle", null

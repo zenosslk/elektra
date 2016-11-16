@@ -36,9 +36,9 @@ shared_filesystem_storage.NewSnapshot = React.createClass
         @setState loading: false
   
   render: ->
-    { Modal, SnapshotForm } = shared_filesystem_storage
+    { SnapshotForm } = shared_filesystem_storage
     
-    React.createElement Modal, ref: 'modal', onHidden: @handleClose,
+    React.createElement ReactModal, ref: 'modal', onHidden: @handleClose,
       div className: 'modal-header',    
         button type: "button", className: "close", "aria-label": "Close", onClick: @close,
           span "aria-hidden": "true", 'x'

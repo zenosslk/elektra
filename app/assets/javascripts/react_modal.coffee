@@ -1,6 +1,6 @@
 {div,button,span,h4} = React.DOM
 
-shared_filesystem_storage.Modal = React.createClass
+@ReactModal = React.createClass
   getDefaultProps: ->
     large: true
 
@@ -18,7 +18,7 @@ shared_filesystem_storage.Modal = React.createClass
           div { className: "modal-content"}, @props.children
 
 
-shared_filesystem_storage.Modal.SubmitButton = React.createClass
+@ReactModal.SubmitButton = React.createClass
   getDefaultProps: -> 
     type: 'submit'
     className: 'btn-primary'

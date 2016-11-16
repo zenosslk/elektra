@@ -31,9 +31,9 @@ shared_filesystem_storage.NewShareNetwork = React.createClass
   
 
   render: ->
-    { Modal, ShareNetworkForm } = shared_filesystem_storage
+    { ShareNetworkForm } = shared_filesystem_storage
     
-    React.createElement Modal, ref: 'modal', onHidden: @handleClose,
+    React.createElement ReactModal, ref: 'modal', onHidden: @handleClose,
       div className: 'modal-header',    
         button type: "button", className: "close", "aria-label": "Close", onClick: @close,
           span "aria-hidden": "true", 'x'

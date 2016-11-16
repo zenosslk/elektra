@@ -16,6 +16,4 @@
 // outside this closure you should bind functions to shared_filesystem_storage. 
 //  
 //       
-//= require react
-//= require react_ujs
-//= require_tree ./components  
+//= require_tree ./components

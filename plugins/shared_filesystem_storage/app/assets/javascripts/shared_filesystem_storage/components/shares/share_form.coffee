@@ -35,8 +35,6 @@ shared_filesystem_storage.ShareForm = React.createClass
     @props.handleClickNewShareNetwork()
     
   render: ->
-    { Modal } = shared_filesystem_storage
-
     form className: 'form form-horizontal', onSubmit: @handleSubmit,
       div className: 'modal-body',
         React.createElement shared_filesystem_storage.FormErrors, errors:@props.errors
@@ -146,7 +144,7 @@ shared_filesystem_storage.ShareForm = React.createClass
                     
       div className: 'modal-footer',
         button role: 'cancel', type: 'button', className: 'btn btn-default', onClick: @props.handleCancel, 'Cancel'
-        React.createElement Modal.SubmitButton, label: @props.buttonLabel, loading: @props.loading, disabled: !@state.valid
+        React.createElement ReactModal.SubmitButton, label: @props.buttonLabel, loading: @props.loading, disabled: !@state.valid
 
 
             

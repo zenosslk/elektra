@@ -1,5 +1,8 @@
 Compute::Engine.routes.draw do
-  resources :instances, except: [:edit, :update] do
+  resources :instances, except: [:edit, :update, :destroy] do
+    collection do
+      get 'references'
+    end
     member do
       get 'console'
       get 'update_item'
@@ -17,6 +20,7 @@ Compute::Engine.routes.draw do
       put 'resume'
       put 'reboot'
       put 'attach_floatingip'
+      put 'terminate'
       delete 'detach_floatingip'
     end
   end

@@ -2,8 +2,11 @@
 
 compute.ShowInstance = React.createClass
   getInitialState: () ->
+    instance: null
 
   open: (instance) ->
+    @setState instance: instance
+
     @refs.modal.open()
 
   close: () -> @refs.modal.close()
@@ -15,4 +18,10 @@ compute.ShowInstance = React.createClass
         button type: "button", className: "close", "aria-label": "Close", onClick: @close,
           span "aria-hidden": "true", 'x'
         h4 className: 'modal-title', 'New Snapshot'
-        "Show Instance"
+
+      div className: 'modal-body',
+        if @state.instance
+          @state.instance.name
+
+      div className: 'modal-footer',
+        button role: 'cancel', type: 'button', className: 'btn btn-default', onClick: @close, 'Cancel'

@@ -35,19 +35,20 @@ module Compute
     end
 
 
+
     def attributes_for_create
       {
         "name"              => read("name"),
         "imageRef"          => read("image_id"),
         "flavorRef"         => read("flavor_id"),
-        "max_count"         => read("max_count"),
-        "min_count"         => read("min_count"),
+        "max_count"         => read("max_count" || 1),
+        "min_count"         => read("min_count" || 1),
         # Optional
         "networks"          => read("network_ids"),
         "security_groups"   => read("security_groups"),
         "availability_zone" => read("availability_zone_id"),
         "key_name"          => read("keypair_id"),
-        "user_data"         => Base64.encode64(read("user_data"))
+        "user_data"         => Base64.encode64(read("user_data") || " ")
         }.delete_if { |k, v| v.blank? }
     end
     

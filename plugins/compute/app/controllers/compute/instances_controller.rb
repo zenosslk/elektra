@@ -3,12 +3,18 @@ module Compute
     def index
       if @scoped_project_id
         @instances = services.compute.servers
-        @flavors = services.compute.flavors
-        @images = services.image.images
+        @instances.each do |instance|
+          instance.permissions = {
+            get: current_user.is_allowed?("compute:instance_get", target: {scoped_domain_name: @scoped_domain_name}),
+            delete: current_user.is_allowed?("compute:instance_delete", target: {scoped_domain_name: @scoped_domain_name}),
+            update: current_user.is_allowed?("compute:instance_update", target: {scoped_domain_name: @scoped_domain_name})
+          }
+        end
 
         @permissions = {
           list: current_user.is_allowed?("compute:instance_list"),
-          create: current_user.is_allowed?("compute:instance_create", target: {scoped_domain_name: @scoped_domain_name})
+          create: current_user.is_allowed?("compute:instance_create", target: {scoped_domain_name: @scoped_domain_name}),
+          create_private_network: current_user.is_allowed?("networking:network_private_create")
         }
 
         # get/calculate quota data
@@ -32,6 +38,17 @@ module Compute
 
     end
 
+    def references
+      render json: { references: {
+        flavors: services.compute.flavors,
+        images: services.image.images,
+        availability_zones: services.compute.availability_zones,
+        security_groups: services.networking.security_groups(tenant_id: @scoped_project_id),
+        private_networks: (services.networking.project_networks(@scoped_project_id).delete_if { |n| n.attributes["router:external"]==true } if services.networking.available?),
+        keypairs: services.compute.keypairs.collect { |kp| Hashie::Mash.new({id: kp.name, name: kp.name}) }
+      }}
+    end
+
     def console
       @instance = services.compute.find_server(params[:id])
       @console = services.compute.vnc_console(params[:id])
@@ -40,46 +57,6 @@ module Compute
         format.json { render json: {url: @console.url} }
       end
     end
-
-    def show
-      @instance = services.compute.find_server(params[:id])
-      @instance_security_groups = @instance.security_groups.collect do |sg|
-        services.networking.security_groups(tenant_id: @scoped_project_id, name: sg['name']).first
-      end
-    end
-
-    def new
-      # get usage from db
-      @quota_data = services.resource_management.quota_data([
-                                                                {service_name: :compute, resource_name: :instances},
-                                                                {service_name: :compute, resource_name: :cores},
-                                                                {service_name: :compute, resource_name: :ram}
-                                                            ])
-
-      @instance = services.compute.new_server
-
-      @flavors = services.compute.flavors
-      @images = services.image.images
-      @images.each { |i| puts i.pretty_attributes }
-
-      @availability_zones = services.compute.availability_zones
-      @security_groups = services.networking.security_groups(tenant_id: @scoped_project_id)
-      @private_networks = services.networking.project_networks(@scoped_project_id).delete_if { |n| n.attributes["router:external"]==true } if services.networking.available?
-      @keypairs = services.compute.keypairs.collect { |kp| Hashie::Mash.new({id: kp.name, name: kp.name}) }
-
-      @instance.errors.add :private_network, 'not available' if @private_networks.blank?
-      @instance.errors.add :image, 'not available' if @images.blank?
-
-      @instance.flavor_id = @flavors.first.try(:id)
-      @instance.image_id = params[:image_id] || @images.first.try(:id)
-      @instance.availability_zone_id = @availability_zones.first.try(:id)
-      @instance.network_ids = [{id: @private_networks.first.try(:id)}]
-      @instance.security_group_ids = [{id: @security_groups.find { |sg| sg.name == 'default' }.try(:id)}]
-      @instance.keypair_id = @keypairs.first['name'] unless @keypairs.blank?
-
-      @instance.max_count = 1
-    end
-
 
     # update instance table row (ajax call)
     def update_item
@@ -97,22 +74,47 @@ module Compute
 
     def create
       @instance = services.compute.new_server
-      params[:server][:security_groups] = params[:server][:security_groups].delete_if { |sg| sg.empty? }
+      params[:server][:security_groups] = (params[:server][:security_groups] || {}).delete_if { |sg| sg.empty? }
       @instance.attributes=params[@instance.model_name.param_key]
 
+      @instance.network_ids = [@instance.network_ids] unless @instance.network_ids.is_a?(Array)
+      @instance.network_ids = @instance.network_ids.collect{|id| {id: id}}
+
       if @instance.save
-        flash.now[:notice] = "Instance successfully created."
-        audit_logger.info(current_user, "has created", @instance)
         @instance = services.compute.find_server(@instance.id)
-        render template: 'compute/instances/create.js'
+
+        @instance.permissions = {
+          get: current_user.is_allowed?("compute:instance_get", target: {scoped_domain_name: @scoped_domain_name}),
+          delete: current_user.is_allowed?("compute:instance_delete", target: {scoped_domain_name: @scoped_domain_name}),
+          update: current_user.is_allowed?("compute:instance_update", target: {scoped_domain_name: @scoped_domain_name})
+        }
+        render json: @instance
       else
-        @flavors = services.compute.flavors
-        @images = services.image.images
-        @availability_zones = services.compute.availability_zones
-        @security_groups = services.networking.security_groups(tenant_id: @scoped_project_id)
-        @private_networks = services.networking.project_networks(@scoped_project_id).delete_if { |n| n.attributes["router:external"]==true }
-        @keypairs = services.compute.keypairs.collect { |kp| Hashie::Mash.new({id: kp.name, name: kp.name}) }
-        render action: :new
+        render json: @instance.errors, status: :unprocessable_entity
+      end
+    end
+
+    def show
+      begin
+        instance = services.compute.find_server(params[:id])
+
+        if instance
+          instance.permissions = {
+            get: current_user.is_allowed?("compute:instance_get", target: {scoped_domain_name: @scoped_domain_name}),
+            delete: current_user.is_allowed?("compute:instance_delete", target: {scoped_domain_name: @scoped_domain_name}),
+            update: current_user.is_allowed?("compute:instance_update", target: {scoped_domain_name: @scoped_domain_name})
+          }
+        end
+        render json: { instance: instance, status: 200 }
+
+      rescue Core::ServiceLayer::Errors::ApiError => e
+        if e.respond_to?(:type) and e.type=="NotFound"
+          render json: {"error": e.message, status: 404}, status: :ok
+        else
+          render json: {"error": e.message}, status: :unprocessable_entity
+        end
+      rescue => e
+        render json: {"error": e.message}, status: :unprocessable_entity
       end
     end
 
@@ -237,9 +239,10 @@ module Compute
       execute_instance_action
     end
 
-    def destroy
-      execute_instance_action('terminate')
+    def terminate
+      execute_instance_action
     end
+
 
     private
 
@@ -257,69 +260,14 @@ module Compute
     end
 
     def execute_instance_action(action=action_name, options=nil)
-      instance_id = params[:id]
-      @instance = services.compute.find_server(instance_id) rescue nil
+      @instance = services.compute.find_server(params[:id]) rescue nil
 
-      @target_state=nil
       if @instance and (@instance.task_state || '')!='deleting'
-        result = options.nil? ? @instance.send(action) : @instance.send(action, options)
-        if result
-          audit_logger.info(current_user, "has triggered action", action, "on", @instance)
-          sleep(2)
-          @instance = services.compute.find_server(instance_id) rescue nil
-
-          @target_state = target_state_for_action(action)
-          @instance.task_state ||= task_state(@target_state) if @instance
-        end
+        options.nil? ? @instance.send(action) : @instance.send(action, options)
       end
 
-      render template: 'compute/instances/update_item.js'
-      #redirect_to instances_url
+      head :ok
     end
 
-    def target_state_for_action(action)
-      case action
-        when 'start' then
-          Compute::Server::RUNNING
-        when 'stop' then
-          Compute::Server::SHUT_DOWN
-        when 'shut_off' then
-          Compute::Server::SHUT_OFF
-        when 'pause' then
-          Compute::Server::PAUSED
-        when 'suspend' then
-          Compute::Server::SUSPENDED
-        when 'block' then
-          Compute::Server::BLOCKED
-      end
-    end
-
-    def task_state(target_state)
-      target_state = target_state.to_i if target_state.is_a?(String)
-      case target_state
-        when Compute::Server::RUNNING then
-          'starting'
-        when Compute::Server::SHUT_DOWN then
-          'powering-off'
-        when Compute::Server::SHUT_OFF then
-          'powering-off'
-        when Compute::Server::PAUSED then
-          'pausing'
-        when Compute::Server::SUSPENDED then
-          'suspending'
-        when Compute::Server::BLOCKED then
-          'blocking'
-        when Compute::Server::BUILDING then
-          'creating'
-      end
-    end
-
-    def active_project_id
-      unless @active_project_id
-        local_project = Project.find_by_domain_fid_and_fid(@scoped_domain_fid, @scoped_project_fid)
-        @active_project_id = local_project.key if local_project
-      end
-      return @active_project_id
-    end
   end
 end

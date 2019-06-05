@@ -2,7 +2,7 @@
 
 module SharedFilesystemStorage
   # security services
-  class SecurityServicesController < ApplicationController
+  class SecurityServicesController < SharedFilesystemStorage::ApplicationController
     def index
       security_services =
         if current_user.is_allowed?(

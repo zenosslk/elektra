@@ -1,6 +1,6 @@
 module SharedFilesystemStorage
   module ShareNetworks
-    class SecurityServicesController < ApplicationController
+    class SecurityServicesController < SharedFilesystemStorage::ApplicationController
 
       def index
         render json: services.shared_filesystem_storage.security_services_detail(share_network_id: params[:share_network_id])

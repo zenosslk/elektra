@@ -2,7 +2,7 @@
 
 module SharedFilesystemStorage
   # This class implements the share types
-  class ShareTypesController < ApplicationController
+  class ShareTypesController < SharedFilesystemStorage::ApplicationController
     authorization_context 'shared_filesystem_storage'
     authorization_required
 

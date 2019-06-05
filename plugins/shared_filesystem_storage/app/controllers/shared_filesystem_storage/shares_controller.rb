@@ -2,7 +2,7 @@
 
 module SharedFilesystemStorage
   # shares
-  class SharesController < ApplicationController
+  class SharesController < SharedFilesystemStorage::ApplicationController
     def index
       per_page = (params[:per_page] || 10).to_i
       current_page = (params[:page] || 1).to_i

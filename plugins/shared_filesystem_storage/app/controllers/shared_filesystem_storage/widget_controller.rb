@@ -2,7 +2,7 @@
 
 module SharedFilesystemStorage
   # Application controller for SharedFilesystemStorage
-  class ApplicationController < ::AjaxController
+  class WidgetController < ::DashboardController
 
     # set policy context
     authorization_context 'shared_filesystem_storage'

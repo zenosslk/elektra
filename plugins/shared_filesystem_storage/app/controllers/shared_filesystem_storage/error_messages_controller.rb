@@ -2,7 +2,7 @@
 
 module SharedFilesystemStorage
   # shares
-  class ErrorMessagesController < ApplicationController
+  class ErrorMessagesController < SharedFilesystemStorage::ApplicationController
     def index
       per_page = (params[:per_page] || 20).to_i
       current_page = (params[:page] || 1).to_i

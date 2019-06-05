@@ -3,7 +3,7 @@
 module SharedFilesystemStorage
   module Shares
     # This class implements the access control
-    class RulesController < ApplicationController
+    class RulesController < SharedFilesystemStorage::ApplicationController
       authorization_context 'shared_filesystem_storage'
       authorization_required
 

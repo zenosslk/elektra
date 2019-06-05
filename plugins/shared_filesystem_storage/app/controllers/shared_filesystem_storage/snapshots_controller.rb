@@ -2,7 +2,7 @@
 
 module SharedFilesystemStorage
   # snapshots
-  class SnapshotsController < ApplicationController
+  class SnapshotsController < SharedFilesystemStorage::ApplicationController
     def index
       render json: services.shared_filesystem_storage.snapshots_detail
     end

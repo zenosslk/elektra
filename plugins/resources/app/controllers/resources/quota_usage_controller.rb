@@ -1,7 +1,7 @@
 require_dependency "resources/application_controller"
 
 module Resources
-  class QuotaUsageController < ::Resources::ApplicationController
+  class QuotaUsageController < ::AjaxController
     authorization_required
     authorization_context 'resources'
 

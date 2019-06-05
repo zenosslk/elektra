@@ -2,7 +2,7 @@
 
 module SharedFilesystemStorage
   # share networks
-  class ShareNetworksController < ApplicationController
+  class ShareNetworksController < SharedFilesystemStorage::ApplicationController
     def index
       render json: services.shared_filesystem_storage.share_networks_detail
     end

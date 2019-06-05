@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 SharedFilesystemStorage::Engine.routes.draw do
-  root to: 'application#show', as: :start
+  root to: 'widget#show', as: :start
 
   resources :shares, except: %i[new edit], constraints: { format: :json } do
     resources :rules, module: 'shares', except: %i[show new edit update]

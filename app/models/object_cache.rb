@@ -129,8 +129,8 @@ class ObjectCache < ApplicationRecord
 
     where(
       [
-        'id ILIKE :term or name ILIKE :term or project_id ILIKE :term or ' \
-        'domain_id ILIKE :term or search_label ILIKE :term',
+        'id LIKE :term or name LIKE :term or project_id LIKE :term or ' \
+        'domain_id LIKE :term or search_label LIKE :term',
         term: "%#{args}%"
       ]
     )
@@ -159,7 +159,7 @@ class ObjectCache < ApplicationRecord
 
     unless options[:term].blank?
       ids = FriendlyIdEntry.where(
-        ['name ILIKE :term OR slug ILIKE :term', term: "%#{options[:term]}%"]
+        ['name LIKE :term OR slug LIKE :term', term: "%#{options[:term]}%"]
       ).pluck(:key)
       # search objects by term
       sql = sql.where(id: ids).or(sql.search(options[:term]))

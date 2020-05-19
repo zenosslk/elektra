@@ -7,7 +7,7 @@ class FriendlyIdEntry < ApplicationRecord
 
   def self.search(class_name, scope, term)
     sql = [
-      "class_name=? and (key ILIKE ? or name ILIKE ?) and endpoint=? #{'and lower(scope)=?' if scope}",
+      "class_name=? and (key LIKE ? or name LIKE ?) and endpoint=? #{'and lower(scope)=?' if scope}",
       class_name,
       "%#{term}%",
       "%#{term}%",
@@ -20,7 +20,7 @@ class FriendlyIdEntry < ApplicationRecord
 
   def self.find_by_class_scope_and_key_or_slug(class_name, scope, key_or_slug)
     sql = [
-      "class_name=? and (lower(key)=? or lower(slug)=?) and endpoint=? #{'and lower(scope)=?' if scope}",
+      "class_name=? and (lower(`key`)=? or lower(slug)=?) and endpoint=? #{'and lower(scope)=?' if scope}",
       class_name,
       key_or_slug.to_s.downcase,
       key_or_slug.to_s.downcase,
@@ -41,7 +41,7 @@ class FriendlyIdEntry < ApplicationRecord
 
   def self.find_or_create_entry(class_name,scope,key,name)
     sql = [
-      "class_name=? #{'and lower(key)=?' if key} #{'and name=?' if name and !key} #{'and lower(scope)=?' if scope}",
+      "class_name=? #{'and lower(`key`)=?' if key} #{'and name=?' if name and !key} #{'and lower(scope)=?' if scope}",
       class_name
     ]
     sql << key.to_s.downcase if key
@@ -65,7 +65,7 @@ class FriendlyIdEntry < ApplicationRecord
     end
 
     sql = [
-      'class_name=? and lower(key)=? and lower(scope)=?',
+      'class_name=? and lower(`key`)=? and lower(scope)=?',
       'Project',
       project.id,
       project.domain_id
@@ -88,7 +88,7 @@ class FriendlyIdEntry < ApplicationRecord
     end
 
     sql = [
-      'class_name=? and lower(key)=? and lower(scope)=?',
+      'class_name=? and lower(`key`)=? and lower(scope)=?',
       'Project',
       project.id,
       project.domain_id

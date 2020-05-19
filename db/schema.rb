@@ -12,10 +12,7 @@
 
 ActiveRecord::Schema.define(version: 2018_05_30_081339) do
 
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
-  create_table "domain_profiles", id: :serial, force: :cascade do |t|
+  create_table "domain_profiles", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "domain_id"
     t.integer "user_profile_id"
     t.string "tou_version"
@@ -24,7 +21,7 @@ ActiveRecord::Schema.define(version: 2018_05_30_081339) do
     t.index ["user_profile_id"], name: "index_domain_profiles_on_user_profile_id"
   end
 
-  create_table "friendly_id_entries", id: :serial, force: :cascade do |t|
+  create_table "friendly_id_entries", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "class_name"
     t.string "scope"
     t.string "name"
@@ -41,29 +38,29 @@ ActiveRecord::Schema.define(version: 2018_05_30_081339) do
     t.index ["slug"], name: "index_friendly_id_entries_on_slug"
   end
 
-  create_table "inquiry_inquiries", id: :serial, force: :cascade do |t|
+  create_table "inquiry_inquiries", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "kind"
     t.text "description"
-    t.json "payload"
+    t.text "payload", limit: 4294967295, collation: "utf8mb4_bin"
     t.string "aasm_state"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "project_id"
     t.string "domain_id"
-    t.json "callbacks"
+    t.text "callbacks", limit: 4294967295, collation: "utf8mb4_bin"
     t.integer "requester_id"
-    t.json "tags"
+    t.text "tags", limit: 4294967295, collation: "utf8mb4_bin"
     t.string "approver_domain_id"
   end
 
-  create_table "inquiry_inquiries_processors", id: false, force: :cascade do |t|
+  create_table "inquiry_inquiries_processors", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "inquiry_id", null: false
     t.integer "processor_id", null: false
     t.index ["inquiry_id", "processor_id"], name: "index_inquiry_processor"
     t.index ["processor_id", "inquiry_id"], name: "index_processor_inquiry"
   end
 
-  create_table "inquiry_process_steps", id: :serial, force: :cascade do |t|
+  create_table "inquiry_process_steps", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "from_state"
     t.string "to_state"
     t.string "event"
@@ -75,7 +72,7 @@ ActiveRecord::Schema.define(version: 2018_05_30_081339) do
     t.index ["inquiry_id"], name: "index_inquiry_process_steps_on_inquiry_id"
   end
 
-  create_table "inquiry_processors", id: :serial, force: :cascade do |t|
+  create_table "inquiry_processors", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "uid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -84,12 +81,12 @@ ActiveRecord::Schema.define(version: 2018_05_30_081339) do
     t.string "name"
   end
 
-  create_table "object_cache", id: :string, force: :cascade do |t|
+  create_table "object_cache", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.string "project_id"
     t.string "domain_id"
     t.string "cached_object_type"
-    t.json "payload"
+    t.text "payload", limit: 4294967295, collation: "utf8mb4_bin"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "search_label"
@@ -100,14 +97,14 @@ ActiveRecord::Schema.define(version: 2018_05_30_081339) do
     t.index ["search_label"], name: "index_object_cache_on_search_label"
   end
 
-  create_table "project_profiles", id: :serial, force: :cascade do |t|
+  create_table "project_profiles", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "project_id"
     t.text "wizard_payload"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "sessions", id: :serial, force: :cascade do |t|
+  create_table "sessions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "session_id", null: false
     t.text "data"
     t.datetime "created_at"
@@ -116,7 +113,7 @@ ActiveRecord::Schema.define(version: 2018_05_30_081339) do
     t.index ["updated_at"], name: "index_sessions_on_updated_at"
   end
 
-  create_table "user_profiles", id: :serial, force: :cascade do |t|
+  create_table "user_profiles", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "uid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

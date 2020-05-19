@@ -9,7 +9,7 @@ module Cloudops
 
         children = ObjectCache.where.not(cached_object_type: ['error','message']).where(
           [
-            'project_id ILIKE :term OR domain_id ILIKE :term OR search_label ILIKE :term',
+            'project_id LIKE :term OR domain_id LIKE :term OR search_label LIKE :term',
             term: "%#{object.id}%"
           ]
         )

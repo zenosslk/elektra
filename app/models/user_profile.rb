@@ -2,7 +2,7 @@ class UserProfile < ApplicationRecord
   has_many :domain_profiles
 
   scope :search_by_name, ->(name) {
-    where('full_name ILIKE ? or name ILIKE ?', "%#{name}%", "%#{name}%")
+    where('full_name LIKE ? or name LIKE ?', "%#{name}%", "%#{name}%")
   }
 
   def self.tou_accepted?(user_id, domain_id, version)

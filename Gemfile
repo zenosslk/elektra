@@ -39,6 +39,7 @@ gem 'react-rails', '~> 2.2.1'
 
 # Database
 gem 'pg'
+gem 'mysql2', '~> 0.5.3' 
 gem 'activerecord-session_store'
 
 # Openstack
@@ -145,3 +146,4 @@ group :test do
   gem 'guard-rspec'
   gem 'rails-controller-testing'
 end
+

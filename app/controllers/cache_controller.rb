@@ -118,7 +118,7 @@ class CacheController < ::ScopeController
 
     domain_ids = ObjectCache.where(cached_object_type: 'domain').where(
       [
-        'object_cache.name ILIKE :domain OR object_cache.id ILIKE :domain',
+        'object_cache.name LIKE :domain OR object_cache.id LIKE :domain',
         domain: "%#{domain}%"
       ]
     ).pluck(:id) unless domain.blank?
@@ -133,7 +133,7 @@ class CacheController < ::ScopeController
       unless project.blank?
         projects = projects.where(
           [
-            'object_cache.name ILIKE :project OR object_cache.id ILIKE :project',
+            'object_cache.name LIKE :project OR object_cache.id LIKE :project',
             project: "%#{project}%"
           ]
         )
@@ -248,7 +248,7 @@ class CacheController < ::ScopeController
       return
     end
 
-    sql = ['payload::text ILIKE ?', "%#{params[:id]}%"]
+    sql = ['payload::text LIKE ?', "%#{params[:id]}%"]
 
     cached_object = ObjectCache.where(id: params[:id]).first
 

@@ -15,15 +15,12 @@
 # gem 'pg'
 #
 default: &default
-  adapter: postgresql
-  encoding: unicode
-  # For details on connection pooling, see rails configuration guide
-  # http://guides.rubyonrails.org/configuring.html#database-pooling
-  pool: <%= ENV['MAX_THREADS'] || 10 %> 
-  username: <%= ENV['MONSOON_DB_USER'] || 'postgres' %>
+  adapter: mysql2
+  encoding: utf8
+  username: <%= ENV['MONSOON_DB_USER'] || 'root' %>
   password: <%= ENV['MONSOON_DB_PASSWORD'] || '' %>
-  host: <%= ENV['POSTGRES_PORT_5432_TCP_ADDR'] || ENV['ELEKTRA_POSTGRESQL_SERVICE_HOST'] || ENV['POSTGRES_ELEKTRA_SERVICE_HOST'] || ENV['POSTGRES_SERVICE_HOST'] || 'localhost' %>
-  port: <%= ENV['POSTGRES_PORT_5432_TCP_PORT'] || ENV['ELEKTRA_POSTGRESQL_SERVICE_PORT'] || ENV['POSTGRES_ELEKTRA_SERVICE_PORT'] || ENV['POSTGRES_SERVICE_PORT'] || 5432 %>
+  host: <%= ENV['MYSQL_PORT_3306_TCP_ADDR'] || ENV['ELEKTRA_MYSQL_SERVICE_HOST'] || ENV['MYSQL_ELEKTRA_SERVICE_HOST'] || ENV['MYSQL_SERVICE_HOST'] || 'localhost' %>
+  port: <%= ENV['MYSQL_PORT_3306_TCP_PORT'] || ENV['ELEKTRA_MYSQL_SERVICE_PORT'] || ENV['MYSQL_ELEKTRA_SERVICE_PORT'] || ENV['MYSQL_SERVICE_PORT'] || 3306 %>
 
 development:
   <<: *default

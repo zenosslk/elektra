@@ -11,12 +11,12 @@ RUN apk --no-cache add git curl tzdata nodejs postgresql-client yarn
 # This avoids recompiling them everytime the Gemfile.lock changes.
 # The versions need to be kept in sync with the Gemfile.lock
 RUN apk --no-cache add build-base postgresql-dev --virtual .builddeps \
+      && gem install pg -v 0.21.0 \
       && gem install byebug -v 9.0.6 \
       && gem install ffi -v 1.9.25 \
       && gem install json -v 1.8.6 \
       && gem install nio4r -v 2.3.1 \
       && gem install nokogiri -v 1.10.7 \
-      && gem install pg -v 0.21.0 \
       && gem install puma -v 3.12.4  \
       && gem install redcarpet -v 3.4.0 \
       && gem install unf -v 0.2.0.beta2 \
@@ -34,6 +34,9 @@ RUN apk --no-cache add build-base postgresql-dev --virtual .builddeps \
       && apk del .builddeps \
       && gem sources -c \
       && rm -f /usr/local/bundle/cache/*
+
+# TODO if mysql
+# RUN apk --no-cache mariadb-dev && gem install mysql2 -v 0.5.3
 
 RUN curl -L -o /usr/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 && \
       chmod +x /usr/bin/dumb-init && \
@@ -81,13 +84,13 @@ ENTRYPOINT ["dumb-init", "-c", "--" ]
 CMD ["script/start.sh"]
 LABEL source_repository="https://github.com/sapcc/elektra"
 
-# run tests
+# run tests withhin intermediate container
 FROM elektra AS tests
 RUN apk add --no-cache postgresql bash
 ENV RAILS_ENV=test
 RUN LISTENTO=127.0.0.1 su postgres -c 'script/pg_tmp.sh -p 5432 -w 300 -d /tmp/pg start' \
-      && rake db:create db:migrate \
-      && bundle exec rspec \
-      && su postgres -c 'script/pg_tmp.sh -d /tmp/pg stop'
+    && rake db:create db:migrate \
+    && bundle exec rspec \
+    && su postgres -c 'script/pg_tmp.sh -d /tmp/pg stop'
 
 FROM elektra

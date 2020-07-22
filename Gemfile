@@ -38,8 +38,18 @@ gem 'responders'
 gem 'react-rails', '~> 2.2.1'
 
 # Database
-gem 'pg'
-gem 'mysql2', '~> 0.5.3' 
+begin
+  require 'dotenv'
+  Dotenv.load
+rescue Exception => e
+end
+
+if ENV['DB_TYPE'].to_s == 'mysql'
+  gem 'mysql2', '0.5.3'
+else
+  gem 'pg', '0.21.0'
+end
+
 gem 'activerecord-session_store'
 
 # Openstack
@@ -132,6 +142,7 @@ end
 group :development, :test, :integration_tests do
   gem 'rspec'
   gem 'colorize'
+  gem 'rails-controller-testing'
 end
 
 group :integration_tests do

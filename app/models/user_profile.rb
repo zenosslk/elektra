@@ -1,8 +1,12 @@
 class UserProfile < ApplicationRecord
   has_many :domain_profiles
 
+  query = 'full_name ILIKE ? or name ILIKE ?'
+  if ENV['DB_TYPE'] == 'mysql'
+    'full_name LIKE ? or name LIKE ?'
+  end
   scope :search_by_name, ->(name) {
-    where('full_name LIKE ? or name LIKE ?', "%#{name}%", "%#{name}%")
+    query = where(query, "%#{name}%", "%#{name}%")
   }
 
   def self.tou_accepted?(user_id, domain_id, version)

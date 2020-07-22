@@ -81,6 +81,7 @@ ENTRYPOINT ["dumb-init", "-c", "--" ]
 CMD ["script/start.sh"]
 LABEL source_repository="https://github.com/sapcc/elektra"
 
+# run tests
 FROM elektra AS tests
 RUN apk add --no-cache postgresql bash
 ENV RAILS_ENV=test

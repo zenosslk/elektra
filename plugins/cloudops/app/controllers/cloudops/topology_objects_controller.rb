@@ -7,9 +7,14 @@ module Cloudops
         object_topology['id'] = object.id
         object_topology['name'] = object.name
 
+        query = 'project_id ILIKE :term OR domain_id ILIKE :term OR search_label ILIKE :term'
+        if ENV['DB_TYPE'] == 'mysql'
+          query = 'project_id LIKE :term OR domain_id LIKE :term OR search_label LIKE :term'
+        end
+
         children = ObjectCache.where.not(cached_object_type: ['error','message']).where(
           [
-            'project_id LIKE :term OR domain_id LIKE :term OR search_label LIKE :term',
+            query,
             term: "%#{object.id}%"
           ]
         )

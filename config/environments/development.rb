@@ -70,6 +70,11 @@ Rails.application.configure do
   config.action_mailer.perform_deliveries = false
 
   puts "=> Auth Endpoint #{ENV['MONSOON_OPENSTACK_AUTH_API_ENDPOINT']}" if ENV['MONSOON_OPENSTACK_AUTH_API_ENDPOINT']
+  if ENV['DB_TYPE']
+    puts "=> Database #{ENV['DB_TYPE']}"
+  else
+    puts "=> Database postgres"
+  end
 
   # reduce active record logging
   config.after_initialize do

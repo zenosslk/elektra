@@ -1,0 +1,24 @@
+# this is the config to use elektra with mysql
+# to use elektra please rename this file to database.yml
+default: &default
+  adapter: mysql2
+  encoding: utf8
+  username: <%= ENV['MONSOON_DB_USER'] || 'root' %>
+  password: <%= ENV['MONSOON_DB_PASSWORD'] || '' %>
+  host: <%= ENV['MYSQL_PORT_3306_TCP_ADDR'] || ENV['ELEKTRA_MYSQL_SERVICE_HOST'] || ENV['MYSQL_ELEKTRA_SERVICE_HOST'] || ENV['MYSQL_SERVICE_HOST'] || 'localhost' %>
+  port: <%= ENV['MYSQL_PORT_3306_TCP_PORT'] || ENV['ELEKTRA_MYSQL_SERVICE_PORT'] || ENV['MYSQL_ELEKTRA_SERVICE_PORT'] || ENV['MYSQL_SERVICE_PORT'] || 3306 %>
+
+development:
+  <<: *default
+  database: monsoon-dashboard_development
+
+test: &test
+  <<: *default
+  database: monsoon-dashboard_test
+
+production:
+  <<: *default
+  database: monsoon-dashboard_production
+
+cucumber:
+  <<: *test

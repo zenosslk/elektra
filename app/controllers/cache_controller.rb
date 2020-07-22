@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# NOTE: The keyword ILIKE can be used instead of LIKE to make the match case insensitive according to the active locale. 
+#       This is not in the SQL standard but is a PostgreSQL extension.
+
 require 'csv'
 
 class CacheController < ::ScopeController
@@ -116,9 +119,14 @@ class CacheController < ::ScopeController
     domain = params[:domain]
     project = params[:project]
 
+    domain_query = 'object_cache.name ILIKE :domain OR object_cache.id ILIKE :domain'
+    if ENV['DB_TYPE'] == 'mysql'
+      domain_query = 'object_cache.name LIKE :domain OR object_cache.id LIKE :domain'
+    end
+
     domain_ids = ObjectCache.where(cached_object_type: 'domain').where(
       [
-        'object_cache.name LIKE :domain OR object_cache.id LIKE :domain',
+        domain_query,
         domain: "%#{domain}%"
       ]
     ).pluck(:id) unless domain.blank?
@@ -131,9 +139,13 @@ class CacheController < ::ScopeController
     ) do |scope|
       projects = domain_ids.nil? ? scope : scope.where(domain_id: domain_ids)
       unless project.blank?
+        project_query = 'object_cache.name ILIKE :project OR object_cache.id ILIKE :project'
+        if ENV['DB_TYPE'] == 'mysql'
+          project_query = 'object_cache.name LIKE :project OR object_cache.id LIKE :project'
+        end
         projects = projects.where(
           [
-            'object_cache.name LIKE :project OR object_cache.id LIKE :project',
+            project_query,
             project: "%#{project}%"
           ]
         )
@@ -248,7 +260,10 @@ class CacheController < ::ScopeController
       return
     end
 
-    sql = ['payload::text LIKE ?', "%#{params[:id]}%"]
+    sql = ['payload::text ILIKE ?', "%#{params[:id]}%"]
+    if ENV['DB_TYPE'] == 'mysql'
+      sql = ['payload::text LIKE ?', "%#{params[:id]}%"]
+    end
 
     cached_object = ObjectCache.where(id: params[:id]).first
 

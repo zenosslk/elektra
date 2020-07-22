@@ -127,10 +127,14 @@ class ObjectCache < ApplicationRecord
     return where(args) if args.is_a?(Hash)
     return nil unless args.is_a?(String)
 
+    query = 'id LIKE :term or name ILIKE :term or project_id ILIKE :term or domain_id ILIKE :term or search_label ILIKE :term'
+    if ENV['DB_TYPE'] == 'mysql'
+      query = 'id LIKE :term or name LIKE :term or project_id LIKE :term or domain_id LIKE :term or search_label LIKE :term'
+    end
+
     where(
       [
-        'id LIKE :term or name LIKE :term or project_id LIKE :term or ' \
-        'domain_id LIKE :term or search_label LIKE :term',
+        query,
         term: "%#{args}%"
       ]
     )
@@ -158,8 +162,12 @@ class ObjectCache < ApplicationRecord
     end
 
     unless options[:term].blank?
+      query = 'name ILIKE :term OR slug ILIKE :term'
+      if ENV['DB_TYPE'] == 'mysql'
+        query = 'name LIKE :term OR slug LIKE :term'
+      end
       ids = FriendlyIdEntry.where(
-        ['name LIKE :term OR slug LIKE :term', term: "%#{options[:term]}%"]
+        [query, term: "%#{options[:term]}%"]
       ).pluck(:key)
       # search objects by term
       sql = sql.where(id: ids).or(sql.search(options[:term]))

@@ -1,3 +1,6 @@
+# NOTE: The keyword ILIKE can be used instead of LIKE to make the match case insensitive according to the active locale. 
+#       This is not in the SQL standard but is a PostgreSQL extension.
+
 class FriendlyIdEntry < ApplicationRecord
   validates :name, presence: true
   validates :key, presence: true
@@ -6,8 +9,14 @@ class FriendlyIdEntry < ApplicationRecord
   friendly_id :name, :use => :scoped, :scope => :scope
 
   def self.search(class_name, scope, term)
+
+    query = "class_name=? and (key ILIKE ? or name ILIKE ?) and endpoint=? #{'and lower(scope)=?' if scope}"
+    if ENV['DB_TYPE'] == 'mysql'
+      query = "class_name=? and (key LIKE ? or name LIKE ?) and endpoint=? #{'and lower(scope)=?' if scope}"
+    end
+    
     sql = [
-      "class_name=? and (key LIKE ? or name LIKE ?) and endpoint=? #{'and lower(scope)=?' if scope}",
+      query,
       class_name,
       "%#{term}%",
       "%#{term}%",
@@ -19,8 +28,15 @@ class FriendlyIdEntry < ApplicationRecord
   end
 
   def self.find_by_class_scope_and_key_or_slug(class_name, scope, key_or_slug)
+
+    query = "class_name=? and (lower(key)=? or lower(slug)=?) and endpoint=? #{'and lower(scope)=?' if scope}"
+
+    if ENV['DB_TYPE'] == 'mysql'
+      query = "class_name=? and (lower(`key`)=? or lower(slug)=?) and endpoint=? #{'and lower(scope)=?' if scope}"
+    end
+    
     sql = [
-      "class_name=? and (lower(`key`)=? or lower(slug)=?) and endpoint=? #{'and lower(scope)=?' if scope}",
+      query,
       class_name,
       key_or_slug.to_s.downcase,
       key_or_slug.to_s.downcase,
@@ -40,8 +56,14 @@ class FriendlyIdEntry < ApplicationRecord
   end
 
   def self.find_or_create_entry(class_name,scope,key,name)
+
+    query = "class_name=? #{'and lower(key)=?' if key} #{'and name=?' if name and !key} #{'and lower(scope)=?' if scope}"
+    if ENV['DB_TYPE'] == 'mysql'
+      query = "class_name=? #{'and lower(`key`)=?' if key} #{'and name=?' if name and !key} #{'and lower(scope)=?' if scope}"
+    end
+    
     sql = [
-      "class_name=? #{'and lower(`key`)=?' if key} #{'and name=?' if name and !key} #{'and lower(scope)=?' if scope}",
+      query,
       class_name
     ]
     sql << key.to_s.downcase if key
@@ -64,8 +86,13 @@ class FriendlyIdEntry < ApplicationRecord
       return nil
     end
 
+    query = 'class_name=? and lower(key)=? and lower(scope)=?'
+    if ENV['DB_TYPE'] == 'mysql'
+      query = 'class_name=? and lower(`key`)=? and lower(scope)=?'
+    end
+
     sql = [
-      'class_name=? and lower(`key`)=? and lower(scope)=?',
+      query,
       'Project',
       project.id,
       project.domain_id
@@ -87,8 +114,13 @@ class FriendlyIdEntry < ApplicationRecord
       return nil
     end
 
+    query = 'class_name=? and lower(key)=? and lower(scope)=?'
+    if ENV['DB_TYPE'] == 'mysql'
+     query =  'class_name=? and lower(`key`)=? and lower(scope)=?'
+    end
+
     sql = [
-      'class_name=? and lower(`key`)=? and lower(scope)=?',
+      query,
       'Project',
       project.id,
       project.domain_id

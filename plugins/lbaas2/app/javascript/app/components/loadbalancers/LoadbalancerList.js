@@ -113,16 +113,35 @@ const LoadbalancerList = (props) => {
               )}
               <div className="main-buttons">
                 {!selected && (
-                  <SmartLink
-                    className="btn btn-primary"
-                    disabled={isLoading}
-                    to="/loadbalancers/new"
-                    className="btn btn-primary"
-                    isAllowed={canCreate}
-                    notAllowedText="Not allowed to create. Please check with your administrator."
-                  >
-                    New Load Balancer
-                  </SmartLink>
+                  <React.Fragment>
+                    <div className="btn-group">
+                      <button
+                        className="btn btn-default btn-sm dropdown-toggle"
+                        type="button"
+                        data-toggle="dropdown"
+                        aria-expanded={true}
+                      >
+                        <span className="fa fa-cog"></span>
+                      </button>
+                      <ul
+                        className="dropdown-menu dropdown-menu-right"
+                        role="menu"
+                      >
+                        <li>
+                          <SmartLink to={`/loadbalancers/json`}>JSON</SmartLink>
+                        </li>
+                      </ul>
+                    </div>
+                    <SmartLink
+                      className="btn btn-primary"
+                      disabled={isLoading}
+                      to="/loadbalancers/new"
+                      isAllowed={canCreate}
+                      notAllowedText="Not allowed to create. Please check with your administrator."
+                    >
+                      New Load Balancer
+                    </SmartLink>
+                  </React.Fragment>
                 )}
               </div>
             </div>
